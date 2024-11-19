@@ -71,4 +71,22 @@ public class Benchmarks {
         ByteBuf buf =  PooledByteBufAllocator.DEFAULT.directBuffer(); // calls newDirectBuffer
         return buf;
     }
+
+    /* TODO: Compare with Java metrics to see if this is actually interesting.
+    This seems like a special case since it only has many inlined callees when in the  io.netty.channel.AbstractChannelHandlerContext::invokeWrite0 stack
+     */
+    @Benchmark
+    @Fork(value = 1, warmups = 1)
+    @BenchmarkMode(Mode.Throughput)
+    public ByteBuf headersMultiMapEncoderHeader(Blackhole blackhole) {
+        // Buffer will be written to
+        ByteBuf buf =  PooledByteBufAllocator.DEFAULT.directBuffer();
+        HeadersMultiMap hmm = HeadersMultiMap.httpHeaders();
+        for (int i=0; i < headerNames.length; i++) {
+            blackhole.consume(hmm.add(headerNames[i], headerValues[i]));
+        }
+        // calls encoderHeader
+        hmm.encode(buf);
+        return buf;
+    }
 }
