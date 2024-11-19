@@ -27,6 +27,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.ByteBuf;
+
+
+
 @State(Scope.Thread)
 public class Benchmarks {
     private CharSequence[] headerNames;
@@ -52,10 +57,18 @@ public class Benchmarks {
     @Benchmark
     @Fork(value = 1, warmups = 1)
     @BenchmarkMode(Mode.Throughput)
-    public void helloWorld(Blackhole blackhole) {
+    public void headersMultiMapAdd(Blackhole blackhole) {
         HeadersMultiMap hmm = HeadersMultiMap.httpHeaders();
         for (int i=0; i < headerNames.length; i++) {
             blackhole.consume(hmm.add(headerNames[i], headerValues[i]));
         }
+    }
+
+    @Benchmark
+    @Fork(value = 1, warmups = 1)
+    @BenchmarkMode(Mode.Throughput)
+    public ByteBuf pooledByteBufAllocatorNewDirectBuffer(Blackhole blackhole) {
+        ByteBuf buf =  PooledByteBufAllocator.DEFAULT.directBuffer(); // calls newDirectBuffer
+        return buf;
     }
 }
