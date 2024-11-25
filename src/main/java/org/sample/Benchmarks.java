@@ -58,9 +58,6 @@ public class Benchmarks {
 
 
     @Benchmark
-//    @Fork(value = 1, warmups = 0)
-//    @Measurement(iterations = 20)
-//    @Warmup(iterations = 1000)
     @BenchmarkMode(Mode.Throughput)
     public HeadersMultiMap headersMultiMapAdd() {
         HeadersMultiMap hmm = HeadersMultiMap.httpHeaders();
@@ -78,9 +75,6 @@ public class Benchmarks {
     }
 
     @Benchmark
-//    @Fork(value = 1, warmups = 0)
-//    @Measurement(iterations = 20)
-//    @Warmup(iterations = 1000)
     @BenchmarkMode(Mode.Throughput)
     public HeadersMultiMap headersMultiMapSet() {
         int loopSize = headerNames.length;
@@ -91,22 +85,15 @@ public class Benchmarks {
     }
 
     @Benchmark
-//    @Fork(value = 1, warmups = 0)
-//    @Measurement(iterations = 20)
-//    @Warmup(iterations = 1000)
     @BenchmarkMode(Mode.Throughput)
     public ByteBuf pooledByteBufAllocatorNewDirectBuffer() {
         ByteBuf buf =  PooledByteBufAllocator.DEFAULT.directBuffer(8,8); // calls newDirectBuffer
         return buf;
     }
 
-    /* TODO: Compare with Java metrics to see if this is actually interesting.
-    This seems like a special case since it only has many inlined callees when in the  io.netty.channel.AbstractChannelHandlerContext::invokeWrite0 stack
+    /* TODO: This seems like a special case since it only has many inlined callees when in the  io.netty.channel.AbstractChannelHandlerContext::invokeWrite0 stack
      */
     @Benchmark
-//    @Fork(value = 1, warmups = 0)
-//    @Measurement(iterations = 20)
-//    @Warmup(iterations = 1000)
     @BenchmarkMode(Mode.Throughput)
     public ByteBuf headersMultiMapEncoderHeader() {
         // calls encoderHeader
