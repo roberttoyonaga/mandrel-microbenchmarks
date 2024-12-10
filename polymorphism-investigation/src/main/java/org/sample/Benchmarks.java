@@ -24,33 +24,6 @@ import io.netty.buffer.ByteBuf;
 
 @State(Scope.Thread)
 public class Benchmarks {
-    private CharSequence[] headerNames;
-    private CharSequence[] headerValues;
-    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyyy HH:mm:ss z");
-
-    private ByteBuf buf;
-    private HeadersMultiMap hmm;
-
-    @Setup
-    public void setup() {
-        headerNames = new CharSequence[4];
-        headerValues = new CharSequence[4];
-        headerNames[0] = HttpHeaders.CONTENT_TYPE;
-        headerValues[0] = HttpHeaders.createOptimized("text/plain");
-        headerNames[1] = HttpHeaders.CONTENT_LENGTH;
-        headerValues[1] = HttpHeaders.createOptimized("20");
-        headerNames[2] = HttpHeaders.SERVER;
-        headerValues[2] = HttpHeaders.createOptimized("vert.x");
-        headerNames[3] = HttpHeaders.DATE;
-        headerValues[3] = HttpHeaders.createOptimized(DATE_FORMAT.format(new java.util.Date(0)));
-
-        buf =  PooledByteBufAllocator.DEFAULT.directBuffer();
-        hmm = HeadersMultiMap.httpHeaders();
-        for (int i=0; i < headerNames.length; i++) {
-            hmm.add(headerNames[i], headerValues[i]);
-        }
-    }
-
     private static final CharSequence cs1 = "sequence1";
     private static final CharSequence cs2 = "sequence2";
     private static final HeadersMultiMap hh = HeadersMultiMap.httpHeaders();
