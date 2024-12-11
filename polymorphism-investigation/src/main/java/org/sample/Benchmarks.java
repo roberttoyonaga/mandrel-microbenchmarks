@@ -5,21 +5,13 @@ import io.netty.util.AsciiString;
 import org.openjdk.jmh.annotations.Benchmark;
 
 import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 
 import io.vertx.core.http.impl.headers.HeadersMultiMap;
-import io.vertx.core.http.HttpHeaders;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Objects;
-
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.ByteBuf;
-
 
 
 @State(Scope.Thread)
@@ -121,13 +113,13 @@ public class Benchmarks {
             }
         }
     }
-    private static final String string1 = "sequence1";
-    private static final String string2 = "sequence2";
+    private static final String staticFinalString1 = "string1";
+    private static final String staticFinalString2 = "string2";
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     public Helper4 monomorphic5 () {
-        helper4.add(string1, string2);
+        helper4.add(staticFinalString1, staticFinalString2);
         return helper4;
     }
 
@@ -136,7 +128,7 @@ public class Benchmarks {
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     public Helper6 monomorphic6 () { // Not inlined
-        helper6.add(String.valueOf(System.currentTimeMillis()), string2);
+        helper6.add(String.valueOf(System.currentTimeMillis()), staticFinalString2);
         return helper6;
     }
 
@@ -167,7 +159,7 @@ public class Benchmarks {
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     public Helper7 monomorphic7() { // inlined
-        helper7.add(string2);
+        helper7.add(staticFinalString2);
         return helper7;
     }
 
@@ -196,12 +188,13 @@ public class Benchmarks {
         }
     }
 
+    private final String finalString = "string";
     private Helper8 helper8 = Helper8.httpHeaders();
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     public Helper8 monomorphic8() {
-        helper8.add(string2);
+        helper8.add(finalString);
         return helper8;
     }
 
