@@ -1,6 +1,5 @@
 package org.sample;
 
-
 import io.netty.util.AsciiString;
 import org.openjdk.jmh.annotations.Benchmark;
 
@@ -12,7 +11,6 @@ import org.openjdk.jmh.annotations.Mode;
 import io.vertx.core.http.impl.headers.HeadersMultiMap;
 
 import java.util.Objects;
-
 
 @State(Scope.Thread)
 public class Benchmarks {
@@ -76,7 +74,6 @@ public class Benchmarks {
             }
             return mult * i;
         }
-
     }
 
     @Benchmark
@@ -113,6 +110,7 @@ public class Benchmarks {
             }
         }
     }
+
     private static final String staticFinalString1 = "string1";
     private static final String staticFinalString2 = "string2";
 
@@ -151,8 +149,6 @@ public class Benchmarks {
             }
         }
     }
-
-
 
     private static final Helper7 helper7 = Helper7.httpHeaders();
 
@@ -221,5 +217,13 @@ public class Benchmarks {
                 System.out.println("test.");
             }
         }
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    public Helper8 monomorphic9() {
+        String nonFinalLocalString = "string";
+        helper8.add(nonFinalLocalString);
+        return helper8;
     }
 }
