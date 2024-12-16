@@ -18,6 +18,7 @@ public class Benchmarks {
     private static final CharSequence cs2 = "sequence2";
     private static final HeadersMultiMap hh = HeadersMultiMap.httpHeaders();
 
+    /** Even when making all fields static final and explicitly using the final class HeadersMultiMap, inlining is lacking. */
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     public HeadersMultiMap headersMultiMapAddMonomorphic1() {
@@ -25,6 +26,7 @@ public class Benchmarks {
         return hh;
     }
 
+    /** Sanity check to make sure the simplest case will be inlined. */
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     public int monomorphic1() {
@@ -50,6 +52,7 @@ public class Benchmarks {
 
     private final Helper2 helper2 = new Helper2(3);
 
+    /** Similar to {@link Benchmarks#monomorphic1()} but without. */
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     public int monomorphic2() {
