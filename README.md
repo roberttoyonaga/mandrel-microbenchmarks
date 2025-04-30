@@ -17,7 +17,7 @@ Build
 ### Profile branches and cycles:
 Build
 
-`mvn clean package -DskipTests -Dquarkus.package.jar.decompiler.enabled=true -Dquarkus.native.debug.enabled -Dquarkus.native.additional-build-args=-H:-DeleteLocalSymbols` 
+`mvn clean package -DskipTests -Dquarkus.package.jar.decompiler.enabled=true -Dquarkus.native.debug.enabled -DbuildArgs=-H:-DeleteLocalSymbols` 
 
 Run benchmarks
 
@@ -31,7 +31,7 @@ Build
 
 Run benchmarks
 
-` $JAVA_HOME/bin/java  -jar target/benchmarks.jar -f 1 -i 1 -wi 1 -tu us -prof org.mendrugo.fibula.DwarfPerfAsmProfiler:events=cycles:P`
+` $JAVA_HOME/bin/java  -jar target/benchmarks.jar -f 1 -i 5 -wi 5 -tu us -prof org.mendrugo.fibula.DwarfPerfAsmProfiler:events=cycles:P`
 
 Annotate assembly of hottset single method
 

@@ -2,9 +2,11 @@ package org.sample;
 
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.vertx.core.http.impl.HttpUtils;
 import org.openjdk.jmh.annotations.Benchmark;
 
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
@@ -30,6 +32,33 @@ public class Benchmarks {
     private ByteBuf buf;
     private HeadersMultiMap hmm;
 
+    private String[] charAtValues;
+    private int charAtIndex;
+
+    @Setup
+    public void setup() {
+        headerNames = new CharSequence[4];
+        headerValues = new CharSequence[4];
+        headerNames[0] = HttpHeaders.CONTENT_TYPE;
+        headerValues[0] = HttpHeaders.createOptimized("text/plain");
+        headerNames[1] = HttpHeaders.CONTENT_LENGTH;
+        headerValues[1] = HttpHeaders.createOptimized("20");
+        headerNames[2] = HttpHeaders.SERVER;
+        headerValues[2] = HttpHeaders.createOptimized("vert.x");
+        headerNames[3] = HttpHeaders.DATE;
+        headerValues[3] = HttpHeaders.createOptimized(DATE_FORMAT.format(new java.util.Date(0)));
+
+        buf =  PooledByteBufAllocator.DEFAULT.directBuffer();
+        hmm = HeadersMultiMap.httpHeaders();
+        for (int i=0; i < headerNames.length; i++) {
+            hmm.add(headerNames[i], headerValues[i]);
+        }
+
+        charAtValues = new String[2];
+        charAtValues[0] = "Latin1 string";
+        charAtValues[1] = "UTF-\uFF11\uFF16 string";
+        charAtIndex = 3;
+    }
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
@@ -145,5 +174,34 @@ public class Benchmarks {
         this.buf.clear();
         this.hmm.encode(this.buf);
         return this.buf;
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    public char charAtLatin1()
+    {
+        final String strLatin1 = charAtValues[0];
+        return strLatin1.charAt(charAtIndex);
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    public char charAtUtf16()
+    {
+        final String strUtf16 = charAtValues[1];
+        return strUtf16.charAt(charAtIndex);
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    public void validateHeader()
+    {
+        try {
+            for (int i=0; i < headerNames.length; i++) {
+                HttpUtils.validateHeader(headerNames[i], headerValues[i]);
+            }
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -68,7 +68,8 @@ public class Benchmarks {
             long result6 = f6(value);
             long result7 = f7(value);
             long result8 = f8_inlining_phase(value);
-            return result1 + result2 + result3 + result3 + result4 + result5 + result6 + result7 + result8;
+            long result9 = f9_propagation(value);
+            return result1 + result2 + result3 + result3 + result4 + result5 + result6 + result7 + result8 + result9;
         }
 
         // Inlined before analysis.
@@ -157,6 +158,99 @@ public class Benchmarks {
                 value += System.currentTimeMillis() + value + System.currentTimeMillis();
             }
             return value + System.currentTimeMillis();
+        }
+
+        /*
+        *[1/8] Initializing...                                                                                    (4.8s @ 0.30GB)
+         Java version: 25+3, vendor version: GraalVM CE 25-dev+3.1
+         Graal compiler: optimization level: 2, target machine: x86-64-v3
+         C compiler: gcc (redhat, x86_64, 14.2.1)
+         Garbage collector: Serial GC (max heap size: 80% of RAM)
+         1 user-specific feature(s):
+         - com.oracle.svm.thirdparty.gson.GsonFeature
+        ------------------------------------------------------------------------------------------------------------------------
+        Build resources:
+         - 26.49GB of memory (42.4% of 62.49GB system memory, determined at start)
+         - 16 thread(s) (100.0% of 16 available processor(s), determined at start)
+        PEGraphDecoder.trySimplifyInvoke: org.sample.Benchmarks$IBAHelper.f9_propagation(long)
+        [InliningUtilities.isTrivialMethod][Benchmarks$IBAHelper.f9_propagation(long)]
+        PEGraphDecoder.trySimplifyInvoke: org.sample.Benchmarks$IBAHelper.f9_propagation_helper(boolean)
+        [InliningUtilities.isTrivialMethod][Benchmarks$IBAHelper.f9_propagation_helper(boolean)]
+        PEGraphDecoder.trySimplifyInvoke: org.sample.Benchmarks$IBAHelper.f9_propagation_helper0(boolean)
+        [InliningUtilities.isTrivialMethod][Benchmarks$IBAHelper.f9_propagation_helper0(boolean)]
+        --- Committing callee scope in InlineBeforeAnalysisPolicyUtils.commitCalleeScope: org.sample.Benchmarks$IBAHelper.f9_propagation_helper0(boolean)
+        $$$ Completed inlining in PEGraphDecoder.finishInlining. Caller: org.sample.Benchmarks$IBAHelper.f9_propagation_helper(boolean) ||| Callee: org.sample.Benchmarks$IBAHelper.f9_propagation_helper0(boolean)
+        --- Committing callee scope in InlineBeforeAnalysisPolicyUtils.commitCalleeScope: org.sample.Benchmarks$IBAHelper.f9_propagation_helper(boolean)
+        $$$ Completed inlining in PEGraphDecoder.finishInlining. Caller: org.sample.Benchmarks$IBAHelper.f9_propagation(long) ||| Callee: org.sample.Benchmarks$IBAHelper.f9_propagation_helper(boolean)
+        [2/8] Performing analysis...  [*****]                                                                    (7.4s @ 0.66GB)
+            4,745 reachable types   (70.1% of    6,765 total)
+            7,462 reachable fields  (47.0% of   15,880 total)
+           22,838 reachable methods (48.6% of   46,977 total)
+            1,686 types,   125 fields, and   419 methods registered for reflection
+               63 types,    70 fields, and    59 methods registered for JNI access
+                4 native libraries: dl, pthread, rt, z
+        [3/8] Building universe...                                                                               (1.5s @ 0.62GB)
+        [4/8] Parsing methods...      [*]                                                                        (1.0s @ 0.68GB)
+        [main] ==== Trivial Inlining  round round 1
+        [main] ==== Trivial Inlining  round round 2
+        [main] ==== Trivial Inlining  round round 3
+        [5/8] Inlining methods...     [***]                                                                      (0.6s @ 0.73GB)
+        [6/8] Compiling methods...    [***]                                                                      (7.8s @ 0.83GB)
+        [7/8] Laying out methods...   [*]                                                                        (1.7s @ 0.90GB)
+        [8/8] Creating image...       [*]     */
+        private static long f9_propagation (long value) {
+            final boolean maybePropogate = false;
+            return f9_propagation_helper(maybePropogate);
+        }
+
+        private static long f9_propagation_helper(boolean maybePropogate) {
+            if (!maybePropogate){
+                return f9_propagation_helper0(maybePropogate);
+            }
+           return -1;
+        }
+
+        // this method is inlined in the before analysis phase. The value of maybePropogate must somehow get propogated.
+        private static long f9_propagation_helper0(boolean maybePropogate) {
+            long ret = 0;
+            if (maybePropogate) {
+                ret += System.currentTimeMillis() + System.currentTimeMillis();
+            }
+            return ret + System.currentTimeMillis();
+        }
+
+
+        private static long f10_propagation (long value) {
+            final boolean maybePropogate = false;
+            return f10_propagation_helper(maybePropogate);
+        }
+
+        // Never inlined
+        private static long f10_propagation_helper(boolean maybePropogate) {
+            if (!maybePropogate){
+                long temp1 = f10_propagation_helper0(maybePropogate);
+                long temp2  = f10_propagation_helper1(maybePropogate);
+                return temp1 + temp2;
+            }
+            return -1;
+        }
+
+        // Only inlined after analysis
+        private static long f10_propagation_helper0(boolean maybePropogate) {
+            long ret = 0;
+            if (maybePropogate) {
+                ret += System.currentTimeMillis() + System.currentTimeMillis();
+            }
+            return ret + System.currentTimeMillis();
+        }
+
+        // never inlined
+        private static long f10_propagation_helper1(boolean maybePropogate) {
+            long ret = 0;
+            if (!maybePropogate) {
+                ret += System.currentTimeMillis() + System.currentTimeMillis();
+            }
+            return ret + System.currentTimeMillis();
         }
     }
 }
