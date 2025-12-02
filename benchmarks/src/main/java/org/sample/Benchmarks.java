@@ -72,80 +72,10 @@ public class Benchmarks {
           -XX:LoopUnrollLimit=1
          */
         for (int i=0; i < loopSize; i++) {
-            hh.clear();// Franz said we may need to clear to avoid the size of the object becoming a relevant factor. Profile to check if clear() becomes relevant.
+            //hh.clear();// Franz said we may need to clear to avoid the size of the object becoming a relevant factor. Profile to check if clear() becomes relevant.
             hh.add(headerNames[i], headerValues[i]);
         }
         return hh;
-    }
-
-    @Benchmark
-    @BenchmarkMode(Mode.Throughput)
-    public HeadersMultiMap headersMultiMapAddMonomorphic() {
-        int loopSize = headerNames.length;
-        HeadersMultiMap hh = null;
-        for (int i=0; i < loopSize; i++) {
-            hh = getHttpHeadersMonomorphic(i);
-            hh.clear();
-            hh.add(headerNames[i], headerValues[i]);
-        }
-        return hh;
-    }
-
-    @Benchmark
-    @BenchmarkMode(Mode.Throughput)
-    public io.netty.handler.codec.http.HttpHeaders polymorphicHeadersMultiMapAdd() {
-        int loopSize = headerNames.length;
-        io.netty.handler.codec.http.HttpHeaders hh = null;
-
-        for (int i=0; i < loopSize; i++) {
-            hh = getHttpHeadersPolymorphic(i);
-            hh.clear();
-            hh.add(headerNames[i], headerValues[i]);
-        }
-        return hh;
-    }
-
-    @Benchmark
-    @BenchmarkMode(Mode.Throughput)
-    public io.netty.handler.codec.http.HttpHeaders polymorphicHeadersMultiMapAdd2() {
-        int loopSize = headerNames.length;
-        io.netty.handler.codec.http.HttpHeaders hh = null;
-
-        for (int i=0; i < loopSize; i++) {
-            hh = getHttpHeadersPolymorphic2(i);
-            hh.clear();
-            hh.add(headerNames[i], headerValues[i]);
-        }
-        return hh;
-    }
-
-
-    io.netty.handler.codec.http.HttpHeaders hmm1 = HeadersMultiMap.httpHeaders();
-    io.netty.handler.codec.http.HttpHeaders hmm2 = HeadersMultiMap.httpHeaders();
-    io.netty.handler.codec.http.HttpHeaders dhh = new DefaultHttpHeaders();
-
-    private io.netty.handler.codec.http.HttpHeaders getHttpHeadersPolymorphic(int i){
-        if(i%42==0){
-            return dhh;
-        } else {
-            return hmm1;
-        }
-    }
-
-    private io.netty.handler.codec.http.HttpHeaders getHttpHeadersPolymorphic2(int i){
-        if(i%2==0){
-            return hmm1;
-        } else {
-            return hmm2;
-        }
-    }
-
-    private HeadersMultiMap getHttpHeadersMonomorphic(int i){
-        if(i%2==0){
-            return (HeadersMultiMap) hmm1;
-        } else {
-            return (HeadersMultiMap) hmm2;
-        }
     }
 
 
