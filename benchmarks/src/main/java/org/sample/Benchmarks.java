@@ -64,7 +64,6 @@ public class Benchmarks {
     @BenchmarkMode(Mode.Throughput)
     public HeadersMultiMap headersMultiMapAdd() {
         HeadersMultiMap hh = HeadersMultiMap.httpHeaders();
-//        HeadersMultiMap hh = HeadersMultiMap.headers(); // Using this avoids the lambda which validates headers.
         int loopSize = headerNames.length;
         /* We don't want loop unrolling. It allows the optimizations to be too specific to each header due to easier branch prediction.
         And it means that each version of the method inlined has it's branches hit with a different probability.
@@ -93,7 +92,7 @@ public class Benchmarks {
     @BenchmarkMode(Mode.Throughput)
     public ByteBuf pooledByteBufAllocatorNewDirectBuffer() {
         ByteBuf buf =  PooledByteBufAllocator.DEFAULT.directBuffer(8,8); // calls newDirectBuffer
-        buf.release(); // Don't forget to free
+        buf.release();
         return buf;
     }
 
@@ -108,24 +107,21 @@ public class Benchmarks {
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
-    public char charAtLatin1()
-    {
+    public char charAtLatin1() {
         final String strLatin1 = charAtValues[0];
         return strLatin1.charAt(charAtIndex);
     }
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
-    public char charAtUtf16()
-    {
+    public char charAtUtf16() {
         final String strUtf16 = charAtValues[1];
         return strUtf16.charAt(charAtIndex);
     }
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
-    public void validateHeader()
-    {
+    public void validateHeader() {
         try {
             for (int i=0; i < headerNames.length; i++) {
                 HttpUtils.validateHeader(headerNames[i], headerValues[i]);
