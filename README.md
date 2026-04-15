@@ -31,7 +31,7 @@ Build
 
 Run benchmarks
 
-` $JAVA_HOME/bin/java  -jar target/benchmarks.jar -f 1 -i 5 -wi 5 -tu us -prof org.mendrugo.fibula.DwarfPerfAsmProfiler:events=cycles:P`
+` $JAVA_HOME/bin/java  -jar target/benchmarks.jar -f 1 -i 5 -wi 5 -tu us -prof org.mendrugo.fibula.PerfDwarfProfiler:events=cycles:pp`
 
 Annotate assembly of hottset single method
 

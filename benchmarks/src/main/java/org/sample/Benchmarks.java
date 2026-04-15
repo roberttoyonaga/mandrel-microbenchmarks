@@ -16,7 +16,7 @@ import io.vertx.core.http.HttpHeaders;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Objects;
+import java.util.Random;
 
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.ByteBuf;
@@ -34,6 +34,7 @@ public class Benchmarks {
 
     private String[] charAtValues;
     private int charAtIndex;
+    private Random rand = new Random();
 
     @Setup
     public void setup() {
@@ -129,5 +130,88 @@ public class Benchmarks {
         } catch (Exception e){
             throw new RuntimeException(e);
         }
+    }
+
+    // ---------- Negative single callsite inlining tests ----------
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    public Integer sciShouldNotInline() {
+        Integer i2 = sciShouldNotInline0(rand.nextInt(), rand.nextInt());
+        Integer i1 = sciShouldNotInline0(rand.nextInt(), rand.nextInt());
+        return i1.intValue() + i2.intValue();
+    }
+
+    // This should be inlined vai single callsite inlining
+    private Integer sciShouldNotInline0(int a, int b) {
+        Integer integerA = Integer.valueOf(a);
+        Integer integerB = Integer.valueOf(b);
+        return integerA.intValue() + integerB.intValue() + rand.nextInt();
+    }
+
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    public Integer sciShouldNotNestedInline() {
+        Integer i = sciShouldNotNestedInline0(rand.nextInt(), rand.nextInt());
+        return i + rand.nextInt();
+    }
+
+    // This will be inlined
+    private Integer sciShouldNotNestedInline0(int a, int b) {
+        Integer integerA = Integer.valueOf(a) +  sciShouldNotNestedInline1(a,b);
+        Integer integerB = Integer.valueOf(b) +  sciShouldNotNestedInline1(a,b);
+        return integerA.intValue() + integerB.intValue();
+    }
+
+    // This should NOT be inlined since it has 2 callsites
+    private Integer sciShouldNotNestedInline1(int a, int b) {
+        Integer integerA = Integer.valueOf(a);
+        Integer integerB = Integer.valueOf(b);
+        return integerA.intValue() + integerB.intValue() + rand.nextInt();
+    }
+
+    // ---------- Positive single callsite inlining tests ----------
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    public Integer sciShouldInline() {
+        Integer i2 = sciShouldInline0(rand.nextInt(), rand.nextInt());
+        Integer i1 = sciShouldInline1(rand.nextInt(), rand.nextInt());
+        return i1.intValue() + i2.intValue();
+    }
+
+    // This should be inlined via single callsite inlining
+    private Integer sciShouldInline0(int a, int b) {
+        Integer integerA = Integer.valueOf(a);
+        Integer integerB = Integer.valueOf(b);
+        return integerA.intValue() + integerB.intValue() + rand.nextInt();
+    }
+
+    // This should be inlined via single callsite inlining
+    private Integer sciShouldInline1(int a, int b) {
+        Integer integerA = Integer.valueOf(a);
+        Integer integerB = Integer.valueOf(b);
+        return integerA.intValue() + integerB.intValue() + rand.nextInt();
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    public Integer sciShouldNestedInline() {
+        Integer i = sciShouldNestedInline0(rand.nextInt(), rand.nextInt());
+        return i + rand.nextInt();
+    }
+
+    private Integer sciShouldNestedInline0(int a, int b) {
+        Integer integerA = Integer.valueOf(a);
+        Integer integerB = Integer.valueOf(b);
+        return integerA.intValue() + integerB.intValue() + sciShouldNestedInline1(rand.nextInt(), rand.nextInt());
+    }
+
+
+    private Integer sciShouldNestedInline1(int a, int b) {
+        Integer integerA = Integer.valueOf(a);
+        Integer integerB = Integer.valueOf(b);
+        return integerA.intValue() + integerB.intValue() + rand.nextInt();
     }
 }
